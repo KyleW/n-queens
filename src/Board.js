@@ -80,24 +80,23 @@
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function(rowIndex){
       var holder = 0;
-      for (var i = 0; i < board[rowIndex].length ; i++){ //figure out how to reference board
-        holder += board[rowIndex][i];
+      var row = this.get(rowIndex); //is board what I should be calling??
+      console.log("you're testing this row: "+ row);
+      for (var i = 0; i < row.length ; i++){
+        holder += row[i];
       }
-      holder > 1 ; return true;
-      return false;
+      return (holder > 1);
     },
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function(){
-      for (var i = 0 ; i < board.length ; i++){
-        if(hasRowConflictAt[i]){
+      for (var i = 0 ; i < this.attributes.n ; i++){
+        if(this.hasRowConflictAt(i)){
           return true
         } 
       }
       return false;
     },
-
-
 
     // COLUMNS - run from top to bottom
     // --------------------------------------------------------------
