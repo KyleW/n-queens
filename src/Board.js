@@ -89,7 +89,12 @@
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function(){
-      return false; // fixme
+      for (var i = 0 ; i < board.length ; i++){
+        if(hasRowConflictAt[i]){
+          return true
+        } 
+      }
+      return false;
     },
 
 
