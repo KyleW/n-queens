@@ -79,7 +79,12 @@
     // 
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function(rowIndex){
-      return false; // fixme
+      var holder = 0;
+      for (var i = 0; i < board[rowIndex].length ; i++){ //figure out how to reference board
+        holder += board[rowIndex][i];
+      }
+      holder > 1 ; return true;
+      return false;
     },
 
     // test if any rows on this board contain conflicts
