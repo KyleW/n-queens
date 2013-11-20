@@ -80,8 +80,10 @@
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function(rowIndex){
       var holder = 0;
-      var row = this.get(rowIndex); //is board what I should be calling??
+      var row = this.get(rowIndex);
       console.log("you're testing this row: "+ row);
+      
+      // below can be replaced by _.reduce
       for (var i = 0; i < row.length ; i++){
         holder += row[i];
       }
@@ -103,13 +105,25 @@
     // 
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function(colIndex){
-      return false; // fixme
+      // build the column into an array
+      var col = [];
+      for (var i = 0 ; i < this.attributes.n ; i++){
+        col.push(this.get(i)[colIndex]);
+      }
+      var holder = 0;
+      
+      // below can be replaced by _.reduce
+      for (var i = 0; i < col.length ; i++){
+        holder += col[i];
+      }
+      return (holder > 1);
+
     },
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function(){
      for (var i = 0 ; i < this.attributes.n ; i++){
-        if(this.hasRowColConflictAt(i)){
+        if(this.hasColConflictAt(i)){
           return true
         } 
       }
