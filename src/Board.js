@@ -108,7 +108,12 @@
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function(){
-      return false; // fixme
+     for (var i = 0 ; i < this.attributes.n ; i++){
+        if(this.hasRowColConflictAt(i)){
+          return true
+        } 
+      }
+      return false;
     },
 
 
