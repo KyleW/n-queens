@@ -125,34 +125,6 @@ window.findNQueensSolution = function(n){
   return solution;
 };
 
-//  FROM DATA STRUCTURES SPRINT
-
-// var makeTree = function(value){
-//   var newTree = Object.create(treeMethods);
-//   newTree.value = value;
-//   newTree.children = [];
-//   newTree.parent= null;
-//   return newTree;
-// };
-
-// var treeMethods = {};
-
-// treeMethods.addChild = function(value){
-//   var temp = makeTree(); // generate a new tree
-//   temp.value = value;
-//   this.children.push(temp);
-//   temp.parent= this;
-// };
-
-// treeMethods.depthFirstLog  = function(fn) {
-//   fn.call(this, arguments);
-//   if (this.children.length > 0) {
-//     for (var i = 0; i< this.children.length; i++) {
-//       this.children[i].depthFirstLog(fn);
-//     }
-//   }
-// };
-
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 
@@ -201,7 +173,17 @@ window.countNQueensSolutions = function(n){
     }
   };
 
-  // function that takes a list of available spaces and given a move subtracts all 
+nodeMethods.depthFirstLog  = function(fn) {
+  fn.call(this, arguments);
+  if (this.children.length > 0) {
+    for (var i = 0; i< this.children.length; i++) {
+      this.children[i].depthFirstLog(fn);
+    }
+  }
+};
+
+
+  // function that takes a list of available spaces and given a move subtracts all
   var removeConflicts = function(availableSpaces,currentMove){
     var temp = availableSpaces.slice(0);
     var curX = currentMove[0];
