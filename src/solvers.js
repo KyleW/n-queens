@@ -10,7 +10,6 @@
 // (There are also optimizations that will allow you to skip a lot of the dead search space)
 // take a look at solversSpec.js to see what the tests are expecting
 
-
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n rooks placed such that none of them can attack each other
 window.findNRooksSolution = function(n){
   // make a n x n board?
@@ -129,21 +128,69 @@ window.findNQueensSolution = function(n){
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 
 window.countNQueensSolutions = function(n){
+  var nodes = 0;
   var solutionCount = 0;
-
   var allPossible = function() {
     var availableSpaces = [];
-
     for ( var i = 0;  i < n; i++ ) {
       for (var j = 0; j < n; j++){
         availableSpaces.push([j,i]);
       }
     }
-
     return availableSpaces;
   }();
 
+
+  // BITWISE
+
+  //make an array with a zero for every row
+  var allPossible = function(n){
+    var result =[];
+    for ( var i = 0 ; i < n ; i++){
+      result.push(0);
+    }
+    return result;
+  };
+
+  var calculateConflicts = function (availableSpaces, move){
+    var newAvailableSpaces = [];
+    var x = move[0];
+    var y = move[1];
+    debugger;
+
+    //columns // major diagonal // minor daignaol
+    for (var i = 0 ; i < availableSpaces.length ; i++){
+      newAvailableSpaces[i] = availableSpaces[i] | Math.pow(2,x)| Math.pow(2,x+i) | Math.pow(2, x-i);
+    }
+
+    //rows
+    newAvailableSpaces[y] =  ( availableSpaces[y] | ( Math.pow(2,n) - 1 ) );
+
+    return newAvailableSpaces;
+  };
+
+  // turn the conflicted spaces from a move in to an array of numbers???
+  // place at [0,0]
+  // All on = (2^n) - 1
+  // rows
+  // allPossible[x] = all off
+  // columns or 2^y
+  // major diag 2^(y + rowNumber)
+  // minor diag 2^(y - rowNumber)
+
+  checkForFreeSpaces = function (availableSpaces){
+    for (var i = 0 ; i < availableSpaces ; i++){
+      if(availableSpaces[i] < Math.pow(2,n) -1 ){
+        return true;
+      }
+      return false;
+    }
+  };
+
+/// END BITWISE
+
   var makeNode = function(value){
+    nodes++;
     var newNode = Object.create(nodeMethods);
     newNode.value = value;
     newNode.children = [];
@@ -154,14 +201,13 @@ window.countNQueensSolutions = function(n){
   };
 
   var nodeMethods = {};
-
   nodeMethods.addChild = function(value){
     var temp = makeNode(value); // generate a new tree
     temp.parent= this;
     temp.level = this.level + 1;
     temp.availableSpaces = removeConflicts(this.availableSpaces , temp.value);
     this.children.push(temp);
-    if (temp.availableSpaces.length > 0){
+    if (temp.availableSpaces.length > 0 && ((temp.availableSpaces.length + temp.level) >= n)){
       for (var i = 0 ; i < temp.availableSpaces.length ; i++){
         if (temp.availableSpaces[i][1] === temp.level){
           temp.addChild(temp.availableSpaces[i]);
@@ -171,17 +217,8 @@ window.countNQueensSolutions = function(n){
     if ( temp.level === n) {
       solutionCount++;
     }
+    // delete temp;
   };
-
-nodeMethods.depthFirstLog  = function(fn) {
-  fn.call(this, arguments);
-  if (this.children.length > 0) {
-    for (var i = 0; i< this.children.length; i++) {
-      this.children[i].depthFirstLog(fn);
-    }
-  }
-};
-
 
   // function that takes a list of available spaces and given a move subtracts all
   var removeConflicts = function(availableSpaces,currentMove){
@@ -207,9 +244,11 @@ nodeMethods.depthFirstLog  = function(fn) {
   var tree = makeNode();
   for (var i = 0 ; i < n ; i++){
     tree.addChild([i,0]);
+    delete tree.children[0];
   }
 
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
+  console.log(nodes);
   return solutionCount;
 };
 
