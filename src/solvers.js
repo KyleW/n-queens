@@ -160,6 +160,7 @@ window.countNQueensSolutions = function(n){
 
   var allPossible = function() {
     var availableSpaces = [];
+
     for ( var i = 0;  i < n; i++ ) {
       for (var j = 0; j < n; j++){
         availableSpaces.push([i,j]);
