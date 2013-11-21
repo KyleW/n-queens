@@ -59,26 +59,38 @@ window.countNRooksSolutions = function(n, solutionCount){
 //n has to be => 4 for this to work
 
 window.findNQueensSolution = function(n){
-  //make an n x n board
-  var board = new Board({n: n});
 
-  // Make an array of all possible spaces
-  var availableSpaces = [];
+  var board;
+  var availableSpaces;
+  var counter;
 
-  for ( var i = 0;  i < n; i++ ) {
-    for (var j = 0; j < n; j++){
-      availableSpaces.push([i,j]);
+  var setBoard = function() {
+    //make an n x n board
+    board = new Board({n: n});
+
+    // Make an array of all possible spaces
+    availableSpaces = [];
+
+    for ( var i = 0;  i < n; i++ ) {
+      for (var j = 0; j < n; j++){
+        availableSpaces.push([i,j]);
+      }
     }
-  }
+
+    counter = 0;//how many queens have been placed
+  };
+
 
   // put a queen on the first space
-  var placeQueen = function() {
-    var currentMove = availableSpaces.shift();
+  var placeQueen = function(start) {
+    start = start || 0;
+    var currentMove = availableSpaces.splice(start,1)[0];
     board.togglePiece(currentMove[0], currentMove[1]);
+    counter++;
 
     // remove all spaces from the array that now have conflicts
     // remove rows
-    for(var k = 0 ; k < availableSpaces.length; k++){
+    for(var k = availableSpaces.length - 1 ; k >= 0; k--){
       //remove spaces in the same column, row, major and minor diagonal
       if (
         availableSpaces[k][0] === currentMove[0] || //columns
@@ -89,20 +101,22 @@ window.findNQueensSolution = function(n){
         availableSpaces.splice(k ,1);    //remove available space[i]
       }
     }
+
+    if (availableSpaces.length > 0){
+      placeQueen();
+    }
   };
 
-  var counter = 0;
 
-  while (availableSpaces.length > 0){
-    // place the next piece at the first space in the array
-    // repeat until array is empty
-    placeQueen();
-    counter++;
-  }
+  setBoard();
+  placeQueen();
 
-
-  if (n > 3 && counter !== n){
-    //then start again starting on the second space
+  var starter = 0;
+  while (n > 3 && counter !== n){
+    setBoard();
+    // start process again, but started on next value
+    placeQueen(starter);
+    starter++;
   }
 
   var solution = board.attributes;
