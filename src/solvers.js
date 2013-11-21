@@ -163,14 +163,12 @@ window.countNQueensSolutions = function(n){
 
     for ( var i = 0;  i < n; i++ ) {
       for (var j = 0; j < n; j++){
-        availableSpaces.push([i,j]);
+        availableSpaces.push([j,i]);
       }
     }
 
     return availableSpaces;
   }();
-
-  console.log(allPossible);
 
   var makeNode = function(value){
     var newNode = Object.create(nodeMethods);
@@ -185,42 +183,54 @@ window.countNQueensSolutions = function(n){
   var nodeMethods = {};
 
   nodeMethods.addChild = function(value){
-    var temp = makeNode(); // generate a new tree
-    temp.value = value;
+    var temp = makeNode(value); // generate a new tree
     temp.parent= this;
     temp.level = this.level + 1;
     temp.availableSpaces = removeConflicts(this.availableSpaces , temp.value);
     this.children.push(temp);
+    if (temp.availableSpaces.length > 0){
+      for (var i = 0 ; i < temp.availableSpaces.length ; i++){
+        if (temp.availableSpaces[i][1] === temp.level){
+          temp.addChild([temp.availableSpaces[i]]);
+        }
+      }
+    }
   };
 
   // function that takes a list of available spaces and given a move subtracts all 
   var removeConflicts = function(availableSpaces,currentMove){
-    //available spaces is an array of what's there before you make your move
-    //currentMove is the move you're making right now
-    for(var k = availableSpaces.length - 1 ; k >= 0; k--){
-      //remove spaces in the same column, row, major and minor diagonal
+    var temp = availableSpaces.slice(0);
+    var curX = currentMove[0];
+    var curY = currentMove[1];
+    for(var k = temp.length - 1 ; k >= 0; k--){
+      var testX = availableSpaces[k][0];
+      var testY = availableSpaces[k][1];
       if (
-        availableSpaces[k][0] === currentMove[0] || //columns
-        availableSpaces[k][1] === currentMove[1] || //rows
-        (currentMove[0]- availableSpaces[k][0]) === (currentMove[1] - availableSpaces[k][1]) || // major diagonal
-        (currentMove[0] - availableSpaces[k][0]) === (availableSpaces[k][1] - currentMove[1])   //  //minor diagonal
+        curX === testX || //columns
+        curY === testY || //rows
+        (curX - testX) === (curY - testY) || // major diagonal
+        (curX - testX) === (testY - curY)   //  //minor diagonal
         ) {
-        availableSpaces.splice(k ,1);    //remove available space[i]
+        temp.splice(k, 1);    //remove available space[i]
       }
     }
     //returns an array
-    return availableSpaces;
+    return temp;
   };
 
   var tree = makeNode();
   for (var i = 0 ; i < n ; i++){
-    tree.addChild([0,i]);
+    tree.addChild([i,0]);
   }
 
-  console.log(tree);
+  return tree;
 
   // var solutionCount = undefined; //fixme
 
   // console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   // return solutionCount;
 };
+
+var temp = countNQueensSolutions(4);
+console.log("Value of 0,0 ", temp.children[0].value);
+console.log("Value of children[0]", temp.children[0].children[0].value);
