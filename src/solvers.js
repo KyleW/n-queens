@@ -144,7 +144,7 @@ window.countNQueensSolutions = function(n){
   // BITWISE
 
   //make an array with a zero for every row
-  var allPossible = function(n){
+  var allPossibleBit = function(n){
     var result =[];
     for ( var i = 0 ; i < n ; i++){
       result.push(0);
@@ -152,11 +152,11 @@ window.countNQueensSolutions = function(n){
     return result;
   };
 
-  var calculateConflicts = function (availableSpaces, move){
+  var calculateConflictsBit = function (availableSpaces, move){
     var newAvailableSpaces = [];
     var x = move[0];
     var y = move[1];
-    debugger;
+    // debugger;
 
     //columns // major diagonal // minor daignaol
     for (var i = 0 ; i < availableSpaces.length ; i++){
@@ -169,6 +169,22 @@ window.countNQueensSolutions = function(n){
     return newAvailableSpaces;
   };
 
+  checkForFreeSpacesBit = function (availableSpaces,level){
+      if(availableSpaces[level] < Math.pow(2,n) -1 ){
+        return true;
+      }
+      return false;
+  };
+
+//  START HERE AFTER LUNCH
+  var findNextSpaceBit = function(availableSpaces, level){
+    for (var x = 0 ; x < n ; x++){
+      if ( !(availableSpaces[level] & Math.pow(2,x)) ){
+        temp.addChild(x,y);
+      }
+    }
+  };
+
   // turn the conflicted spaces from a move in to an array of numbers???
   // place at [0,0]
   // All on = (2^n) - 1
@@ -177,15 +193,6 @@ window.countNQueensSolutions = function(n){
   // columns or 2^y
   // major diag 2^(y + rowNumber)
   // minor diag 2^(y - rowNumber)
-
-  checkForFreeSpaces = function (availableSpaces){
-    for (var i = 0 ; i < availableSpaces ; i++){
-      if(availableSpaces[i] < Math.pow(2,n) -1 ){
-        return true;
-      }
-      return false;
-    }
-  };
 
 /// END BITWISE
 
