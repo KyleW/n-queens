@@ -185,7 +185,7 @@ nodeMethods.depthFirstLog  = function(fn) {
 
   // function that takes a list of available spaces and given a move subtracts all
   var removeConflicts = function(availableSpaces,currentMove){
-    var temp = availableSpaces.slice(0);
+    var temp = [].concat(availableSpaces);
     var curX = currentMove[0];
     var curY = currentMove[1];
     for(var k = temp.length - 1 ; k >= 0; k--){
