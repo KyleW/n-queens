@@ -129,58 +129,70 @@ window.findNQueensSolution = function(n){
 
 window.countNQueensSolutions = function(n){
   var nodes = 0;
+  var nodeMethodsBit = {};
   var solutionCount = 0;
-  var allPossible = function() {
-    var availableSpaces = [];
-    for ( var i = 0;  i < n; i++ ) {
-      for (var j = 0; j < n; j++){
-        availableSpaces.push([j,i]);
-      }
-    }
-    return availableSpaces;
-  }();
 
+  // var allPossible = function() {
+  //   var availableSpaces = [];
+  //   for ( var i = 0;  i < n; i++ ) {
+  //     for (var j = 0; j < n; j++){
+  //       availableSpaces.push([j,i]);
+  //     }
+  //   }
+  //   return availableSpaces;
+  // }();
 
   // BITWISE
 
   //make an array with a zero for every row
-  var allPossibleBit = function(n){
+  var allPossibleBit = function(){
     var result =[];
     for ( var i = 0 ; i < n ; i++){
       result.push(0);
     }
     return result;
-  };
+  } ();
 
   var calculateConflictsBit = function (availableSpaces, move){
-    var newAvailableSpaces = [];
-    var x = move[0];
-    var y = move[1];
-    // debugger;
-
-    //columns // major diagonal // minor daignaol
-    for (var i = 0 ; i < availableSpaces.length ; i++){
-      newAvailableSpaces[i] = availableSpaces[i] | Math.pow(2,x)| Math.pow(2,x+i) | Math.pow(2, x-i);
-    }
+    var newAvailableSpaces = [].concat(availableSpaces);
+    var row = move[0];
+    var col = move[1];
 
     //rows
-    newAvailableSpaces[y] =  ( availableSpaces[y] | ( Math.pow(2,n) - 1 ) );
+    newAvailableSpaces[row] = (Math.pow(2,n) - 1);
+
+    debugger;
+
+    for (var i = row + 1 ; i < availableSpaces.length ; i++){
+      //columns
+      newAvailableSpaces[i] = newAvailableSpaces[i] | Math.pow(2,col);
+
+      //major diag
+      if (Math.pow(2,col+i)<(Math.pow(2,n)-1)){
+        newAvailableSpaces[i] = newAvailableSpaces[i] | Math.pow(2,col+i);
+      }
+
+      //minor diag
+      if((col-i)>0){
+        newAvailableSpaces[i] = newAvailableSpaces[i] | Math.pow(2, col-i);
+      }
+    }
+
 
     return newAvailableSpaces;
   };
 
-  checkForFreeSpacesBit = function (availableSpaces,level){
+  var checkForFreeSpacesBit = function (availableSpaces,level){
       if(availableSpaces[level] < Math.pow(2,n) -1 ){
         return true;
       }
       return false;
   };
 
-//  START HERE AFTER LUNCH
-  var findNextSpaceBit = function(availableSpaces, level){
+  nodeMethodsBit.findNextSpaceBit = function(availableSpaces, level){
     for (var x = 0 ; x < n ; x++){
       if ( !(availableSpaces[level] & Math.pow(2,x)) ){
-        temp.addChild(x,y);
+        this.children[this.children.length-1].addChildBit([level + 1, x]);
       }
     }
   };
@@ -195,31 +207,28 @@ window.countNQueensSolutions = function(n){
   // minor diag 2^(y - rowNumber)
 
 /// END BITWISE
+// BITWISE VERSION OF MAKE NODE BELOW
 
-  var makeNode = function(value){
+  var makeNodeBit = function(value){
+    // if (n === 4) { debugger; }
     nodes++;
-    var newNode = Object.create(nodeMethods);
+    var newNode = Object.create(nodeMethodsBit);
     newNode.value = value;
     newNode.children = [];
     newNode.parent= null;
-    newNode.availableSpaces = allPossible;
+    newNode.availableSpaces = allPossibleBit;
     newNode.level = 0;
     return newNode;
   };
 
-  var nodeMethods = {};
-  nodeMethods.addChild = function(value){
-    var temp = makeNode(value); // generate a new tree
+  nodeMethodsBit.addChildBit = function(value){
+    var temp = makeNodeBit(value); // generate a new tree
     temp.parent= this;
     temp.level = this.level + 1;
-    temp.availableSpaces = removeConflicts(this.availableSpaces , temp.value);
+    temp.availableSpaces = calculateConflictsBit(this.availableSpaces , temp.value);
     this.children.push(temp);
-    if (temp.availableSpaces.length > 0 && ((temp.availableSpaces.length + temp.level) >= n)){
-      for (var i = 0 ; i < temp.availableSpaces.length ; i++){
-        if (temp.availableSpaces[i][1] === temp.level){
-          temp.addChild(temp.availableSpaces[i]);
-        }
-      }
+    if(checkForFreeSpacesBit(temp.availableSpaces, temp.level) ){
+      this.findNextSpaceBit(temp.availableSpaces, temp.level);
     }
     if ( temp.level === n) {
       solutionCount++;
@@ -227,32 +236,73 @@ window.countNQueensSolutions = function(n){
     // delete temp;
   };
 
-  // function that takes a list of available spaces and given a move subtracts all
-  var removeConflicts = function(availableSpaces,currentMove){
-    var temp = [].concat(availableSpaces);
-    var curX = currentMove[0];
-    var curY = currentMove[1];
-    for(var k = temp.length - 1 ; k >= 0; k--){
-      var testX = availableSpaces[k][0];
-      var testY = availableSpaces[k][1];
-      if (
-        curX === testX || //columns
-        curY === testY || //rows
-        (curX - testX) === (curY - testY) || // major diagonal
-        (curX - testX) === (testY - curY)   //  //minor diagonal
-        ) {
-        temp.splice(k, 1);    //remove available space[i]
-      }
-    }
-    //returns an array
-    return temp;
-  };
 
-  var tree = makeNode();
+  var tree = makeNodeBit();
   for (var i = 0 ; i < n ; i++){
-    tree.addChild([i,0]);
-    delete tree.children[0];
+    tree.addChildBit([i,0]);
+    // delete tree.children[0];
   }
+
+// END BITWISE VERSION OF MAKE NODE
+
+
+  // var makeNode = function(value){
+  //   // nodes++;
+  //   var newNode = Object.create(nodeMethods);
+  //   newNode.value = value;
+  //   newNode.children = [];
+  //   newNode.parent= null;
+  //   newNode.availableSpaces = allPossible;
+  //   newNode.level = 0;
+  //   return newNode;
+  // };
+
+  // var nodeMethods = {};
+  // nodeMethods.addChild = function(value){
+  //   var temp = makeNode(value); // generate a new tree
+  //   temp.parent= this;
+  //   temp.level = this.level + 1;
+  //   temp.availableSpaces = removeConflicts(this.availableSpaces , temp.value);
+  //   this.children.push(temp);
+  //   if (temp.availableSpaces.length > 0 && ((temp.availableSpaces.length + temp.level) >= n)){
+  //     for (var i = 0 ; i < temp.availableSpaces.length ; i++){
+  //       if (temp.availableSpaces[i][1] === temp.level){
+  //         temp.addChild(temp.availableSpaces[i]);
+  //       }
+  //     }
+  //   }
+  //   if ( temp.level === n) {
+  //     solutionCount++;
+  //   }
+  //   // delete temp;
+  // };
+
+  // // function that takes a list of available spaces and given a move subtracts all
+  // var removeConflicts = function(availableSpaces,currentMove){
+  //   var temp = [].concat(availableSpaces);
+  //   var curX = currentMove[0];
+  //   var curY = currentMove[1];
+  //   for(var k = temp.length - 1 ; k >= 0; k--){
+  //     var testX = availableSpaces[k][0];
+  //     var testY = availableSpaces[k][1];
+  //     if (
+  //       curX === testX || //columns
+  //       curY === testY || //rows
+  //       (curX - testX) === (curY - testY) || // major diagonal
+  //       (curX - testX) === (testY - curY)   //  //minor diagonal
+  //       ) {
+  //       temp.splice(k, 1);    //remove available space[i]
+  //     }
+  //   }
+  //   //returns an array
+  //   return temp;
+  // };
+
+  // var tree = makeNode();
+  // for (var i = 0 ; i < n ; i++){
+  //   tree.addChild([i,0]);
+  //   delete tree.children[0];
+  // }
 
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   console.log(nodes);
