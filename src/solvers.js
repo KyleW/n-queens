@@ -128,23 +128,12 @@ window.findNQueensSolution = function(n){
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 
 window.countNQueensSolutions = function(n){
-  var nodes = 0;
+  // var nodes = 0;
   var nodeMethodsBit = {};
   var solutionCount = 0;
 
-  // var allPossible = function() {
-  //   var availableSpaces = [];
-  //   for ( var i = 0;  i < n; i++ ) {
-  //     for (var j = 0; j < n; j++){
-  //       availableSpaces.push([j,i]);
-  //     }
-  //   }
-  //   return availableSpaces;
-  // }();
-
-  // BITWISE
-
   //make an array with a zero for every row
+
   var allPossibleBit = function(){
     var result =[];
     for ( var i = 0 ; i < n ; i++){
@@ -178,8 +167,6 @@ window.countNQueensSolutions = function(n){
         newAvailableSpaces[i] = newAvailableSpaces[i] | Math.pow(2,pos);
       }
     }
-    // debugger;
-
 
     return newAvailableSpaces;
   };
@@ -199,21 +186,8 @@ window.countNQueensSolutions = function(n){
     }
   };
 
-  // turn the conflicted spaces from a move in to an array of numbers???
-  // place at [0,0]
-  // All on = (2^n) - 1
-  // rows
-  // allPossible[x] = all off
-  // columns or 2^y
-  // major diag 2^(y + rowNumber)
-  // minor diag 2^(y - rowNumber)
-
-/// END BITWISE
-// BITWISE VERSION OF MAKE NODE BELOW
-
   var makeNodeBit = function(value){
-    // if (n === 4) { debugger; }
-    nodes++;
+    // nodes++;
     var newNode = Object.create(nodeMethodsBit);
     newNode.value = value;
     newNode.children = [];
@@ -227,13 +201,18 @@ window.countNQueensSolutions = function(n){
     var temp = makeNodeBit(value); // generate a new tree
     temp.parent= this;
     temp.level = this.level + 1;
-    temp.availableSpaces = calculateConflictsBit(this.availableSpaces , temp.value);
     this.children.push(temp);
-    if(checkForFreeSpacesBit(temp.availableSpaces, temp.level) ){
-      this.findNextSpaceBit(temp.availableSpaces, temp.level);
-    }
+
     if (temp.value[0] + 1 === n) {
       solutionCount++;
+      return;
+    }
+
+    temp.availableSpaces = calculateConflictsBit(this.availableSpaces , temp.value);
+    if (temp.availableSpaces[value[0]+1] === Math.pow(2,n)-1) {
+      return;
+    } else if (checkForFreeSpacesBit(temp.availableSpaces, temp.level) ){
+      this.findNextSpaceBit(temp.availableSpaces, temp.level);
     }
     // delete temp;
   };
@@ -242,11 +221,29 @@ window.countNQueensSolutions = function(n){
   var tree = makeNodeBit();
   for (var i = 0 ; i < n ; i++){
     tree.addChildBit([0,i]);
-    // delete tree.children[0];
+    delete tree.children[0];
   }
 
-// END BITWISE VERSION OF MAKE NODE
+  console.log('Number of solutions for ' + n + ' queens:', solutionCount);
+  // console.log(nodes);
+  return solutionCount;
+};
 
+
+
+
+
+// NONBITWISE VERSION OF MAKE NODE BELOW
+
+  // var allPossible = function() {
+  //   var availableSpaces = [];
+  //   for ( var i = 0;  i < n; i++ ) {
+  //     for (var j = 0; j < n; j++){
+  //       availableSpaces.push([j,i]);
+  //     }
+  //   }
+  //   return availableSpaces;
+  // }();
 
   // var makeNode = function(value){
   //   // nodes++;
@@ -305,9 +302,3 @@ window.countNQueensSolutions = function(n){
   //   tree.addChild([i,0]);
   //   delete tree.children[0];
   // }
-
-  console.log('Number of solutions for ' + n + ' queens:', solutionCount);
-  console.log(nodes);
-  return solutionCount;
-};
-
