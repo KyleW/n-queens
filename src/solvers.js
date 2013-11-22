@@ -161,22 +161,24 @@ window.countNQueensSolutions = function(n){
     //rows
     newAvailableSpaces[row] = (Math.pow(2,n) - 1);
 
-    debugger;
-
     for (var i = row + 1 ; i < availableSpaces.length ; i++){
       //columns
       newAvailableSpaces[i] = newAvailableSpaces[i] | Math.pow(2,col);
 
       //major diag
-      if (Math.pow(2,col+i)<(Math.pow(2,n)-1)){
-        newAvailableSpaces[i] = newAvailableSpaces[i] | Math.pow(2,col+i);
+      // in row i. get rid of space at pos:
+      var pos = col+(row - i);
+      if ( pos < n && pos > -1) {
+        newAvailableSpaces[i]= newAvailableSpaces[i] | Math.pow(2,pos);
       }
 
       //minor diag
-      if((col-i)>0){
-        newAvailableSpaces[i] = newAvailableSpaces[i] | Math.pow(2, col-i);
+      pos = col - (row - i);
+      if( pos < n && pos > -1) {
+        newAvailableSpaces[i] = newAvailableSpaces[i] | Math.pow(2,pos);
       }
     }
+    // debugger;
 
 
     return newAvailableSpaces;
@@ -192,7 +194,7 @@ window.countNQueensSolutions = function(n){
   nodeMethodsBit.findNextSpaceBit = function(availableSpaces, level){
     for (var x = 0 ; x < n ; x++){
       if ( !(availableSpaces[level] & Math.pow(2,x)) ){
-        this.children[this.children.length-1].addChildBit([level + 1, x]);
+        this.children[this.children.length-1].addChildBit([level, x]);
       }
     }
   };
@@ -230,7 +232,7 @@ window.countNQueensSolutions = function(n){
     if(checkForFreeSpacesBit(temp.availableSpaces, temp.level) ){
       this.findNextSpaceBit(temp.availableSpaces, temp.level);
     }
-    if ( temp.level === n) {
+    if (temp.value[0] + 1 === n) {
       solutionCount++;
     }
     // delete temp;
@@ -239,7 +241,7 @@ window.countNQueensSolutions = function(n){
 
   var tree = makeNodeBit();
   for (var i = 0 ; i < n ; i++){
-    tree.addChildBit([i,0]);
+    tree.addChildBit([0,i]);
     // delete tree.children[0];
   }
 
